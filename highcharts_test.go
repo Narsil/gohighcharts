@@ -60,17 +60,8 @@ func TestNewChart(t *testing.T){
 }
 
 func TestDynamicChart(t *testing.T){
-    options := map[string]interface{}{
-        "series":  []interface{}{
-            map[string]interface{}{
-                "name": "toto",
-                "data": []int{1, 2, 3},
-            },
-        },
-    }
-
     data := make(chan interface{})
-    NewDynamicChart("/dynamic/", options, data)
+    NewDynamicChart("/dynamic/", nil, data)
     go func(){
         for i := 0; i < 10; i++{
             data<-i
