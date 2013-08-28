@@ -3,6 +3,25 @@ gohighcharts
 
 Library to display graphics using highcharts on a local server. Supports dynamic data through channels.
 
+
+Installing
+==========
+
+Within your project run
+
+```bash
+// Download the sources
+go get github.com/Narsil/gohighcharts
+
+// Get the static files that will be used by the server
+git clone https://github.com/Narsil/gohighcharts.git
+cp -r gohighcharts/{tmpl,static} .
+rm -rf gohighcharts
+```
+
+Usage
+=====
+
 Simple Chart Example
 --------------------
 
@@ -39,7 +58,18 @@ import (
 
 func main(){
   data := make(chan interface{})                                             
-  highcharts.NewDynamicChart("/dynamic/", nil, data)
+  options := map[string]interface{}{
+      "series":  []interface{}{
+          map[string]interface{}{
+              "name": "Dynamic chart",
+              "data": []int{},
+          },
+      },
+      "chart": map[string]interface{}{
+          "type": "line",
+      },
+  }
+  highcharts.NewDynamicChart("/dynamic/", options, data)
   go func(){                                                                 
       for i := 0; i < 10; i++{                                               
           data<-i                                                            
