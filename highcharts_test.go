@@ -27,6 +27,9 @@ func TestNewChart(t *testing.T){
     if err != nil{
         t.Errorf("Error while loading chart page", err)
     }
+    if resp.StatusCode != 200{
+        t.Errorf("Error while reading chart page", err)
+    }
     defer resp.Body.Close()
     body, err := ioutil.ReadAll(resp.Body)
     if err != nil{
@@ -43,8 +46,10 @@ func TestNewChart(t *testing.T){
     if err != nil{
         t.Errorf("Error while reading chart data page", err)
     }
-    if string(body) != "{\"chart\":{\"type\":\"line\"},\"series\":[{\"data\":[1,2,3],\"name\":\"toto\"}]}"{
-        t.Errorf("Error in data json")
+    expmsg := "{\"chart\":{\"type\":\"line\"},\"series\":[{\"data\":[1,2,3],\"name\":\"toto\"}]}"
+    strmsg := string(body)
+    if strmsg != expmsg{
+        t.Errorf("Did not receive the correct JSON exepected ", expmsg, " got ", strmsg)
     }
 
 
@@ -61,7 +66,18 @@ func TestNewChart(t *testing.T){
 
 func TestDynamicChart(t *testing.T){
     data := make(chan interface{})
-    NewDynamicChart("/dynamic/", nil, data)
+    options := map[string]interface{}{
+        "series":  []interface{}{
+            map[string]interface{}{
+                "name": "toto",
+                "data": []int{},
+            },
+        },
+        "chart": map[string]interface{}{
+            "type": "line",
+        },
+    }
+    NewDynamicChart("/dynamic/", options, data)
     go func(){
         for i := 0; i < 10; i++{
             data<-i
@@ -102,4 +118,28 @@ func TestDynamicChart(t *testing.T){
 
     // Uncomment to test in browser
     // time.Sleep(1e11)
+}
+
+func TestNewPort(t *testing.T){
+    options := map[string]interface{}{
+        "series":  []interface{}{
+            map[string]interface{}{
+                "name": "toto",
+                "data": []int{1, 2, 3},
+            },
+        },
+        "chart": map[string]interface{}{
+            "type": "line",
+        },
+    }
+    SetPort(":8081")
+    NewChart("/newport/", options)
+
+    resp, err := http.Get("http://localhost:8081/newport/")
+    if err != nil{
+        t.Errorf("Error while loading chart page", err)
+    }
+    if resp.StatusCode != 200{
+        t.Errorf("Error while reading chart page", err)
+    }
 }
