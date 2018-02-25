@@ -6,14 +6,14 @@ import (
     "log"
     "encoding/json"
     "fmt"
-    "code.google.com/p/go.net/websocket"
+	"golang.org/x/net/websocket"
 )
 
 var started = false
 var static = false
 var port = ":8080"
 
-// Creates a new highchart based on options argument at url
+// NewChart creates a new highchart based on options argument at url
 // View at http://localhost:8080/url/
 // To change port see SetPort
 func NewChart(url string, options interface{}){
@@ -29,7 +29,7 @@ func NewChart(url string, options interface{}){
     eventualServerStart()
 }
 
-// Creates a new highchart based on options argument at url
+// NewDynamicChart creates a new highchart based on options argument at url
 // Whenever you add data to your channel it will be sent to
 // your graph via websocket.
 // Only support one channel on one graph for now.
@@ -54,15 +54,14 @@ func NewDynamicChart(url string, options interface{}, channel chan interface{}){
 
 }
 
-// Sets the port for the server to see the graphs
+// SetPort sets the port for the server to see the graphs
 // Is in the same format as ListenAndServe, ":8080"
-func SetPort(server_port string){
-    port = server_port
+func SetPort(serverPort string){
+    port = serverPort
     started = false
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-    t := template.New("base")
     t, err := template.ParseFiles("tmpl/base.html")
     if err != nil{
         log.Fatal(err)
